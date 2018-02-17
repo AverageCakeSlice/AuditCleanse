@@ -1,9 +1,8 @@
 
 
 
--------------------
-> Package Requirements
--------------------
+Package Requirements
+------------------------
 
 This program requires the following libraries to be installed, and the comments following each are
 the reasons for each. Use '<sudo> pip install [package]' to set up each package.
