@@ -13,9 +13,8 @@ def checkPriv():
             ctypes.windll.shell32.ShellExecuteW(None, u'runas', sys.executable, "", None, 1)
             sys.exit()
         except:
-            pass
-        raise Exception('Run the script as super user! [sudo ./script]')
-
+            raise Exception('Run the script as super user! [sudo ./script]')
+        sys.exit()
 
 def is_admin():
     if platform.system() == "Windows":

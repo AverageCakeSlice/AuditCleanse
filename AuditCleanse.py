@@ -102,58 +102,51 @@ AuditCleanse -- Version 1.1.2b
 
 '''
  ---------------------------------------
-  Global Variables
- --------------------------------------- '''
-# NONE BROSKI #neveruseglobal
-
-
-'''
- ---------------------------------------
   Main
  --------------------------------------- '''
 
 def main():
-        _priviledgeHandler.checkPriv()
-        _updateHandler.checkVersion()
         _toolsHandler.header()
 
         AuditDictionary = {}
-        #       Holds many different items based on each CS# entry
+        #   Holds many different items based on each CS# entry
         AuditList = []
-        #       Holds a list of the items on the Audit for easier handling
+        #   Holds a list of the items on the Audit for easier handling
         totalTicketNumber = 0
-        #       Holds total number of items on the Audit
+        #   Holds total number of items on the Audit
         GoodScannedList = []
-        #       List of items on Audit accounted for
+        #   List of items on Audit accounted for
         WronglyScannedList = []
-        #       List of items that were scanned but not on the Audit
+        #   List of items that were scanned but not on the Audit
 
-
-
-
-        #       -----
-        #       ServiceNow Objects
-        #       -----
         username, serviceNow, auditTKT = login()
-        
+        #   Creates a serviceNow session for the passed information, also returns the technicians username and Audit Ticket
         u_computer_supportTable = serviceNow.resource(api_path='/table/u_computer_support')
-        #       Service Now object to search items in the u_computer_support table
+        #   ServiceNow object to search items in the u_computer_support table
         sys_userTable = serviceNow.resource(api_path='/table/sys_user')
-        #       Service Now object to search for users and information based on their sysID
+        #   ServiceNow object to search for users and information based on their sysID
         taskTable = serviceNow.resource(api_path='/table/task')
+        #   ServiceNow object to work on the audit ticket
 
         auditChoice, u_depot_location, u_location = auditSetup()
-
-        AuditList, totalTicketNumber = QueryGen(auditChoice, u_depot_location, u_location, serviceNow)
-
+        #   Sets up the audit, getting the user's office and what audit they want
+        AuditList, totalTicketNumber = queryReport(auditChoice, u_depot_location, u_location, serviceNow)
+        #   Returns a full list of all tickets that should be on the audit
         
 
         if auditChoice == 0 or auditChoice == 1:
+        #   If doing Repair or Assignment Audit
                 gatherer(serviceNow, AuditDictionary, AuditList, totalTicketNumber, sys_userTable, u_computer_supportTable)
+                #   Gathers information on the CS tickets such as 'assigned to', 'state', and such
                 sorted(AuditList, key=lambda x: (AuditDictionary[x]['state'], AuditDictionary[x]['username']))
+                #   Sorts the items by CS#
                 repairer(serviceNow, AuditDictionary, AuditList, sys_userTable, u_computer_supportTable)
+                #   Repairs the tickets that are not set correctly, such as devices marked open but not in queue
+
                 _toolsHandler.header()
+                
                 NotScannedList = auditConsole(AuditDictionary, AuditList, GoodScannedList, WronglyScannedList)
+                #   The actual power of the program, returns the items still on the list that were not accounted for
                 WronglyScannedListDict = {}
 
                 if len(NotScannedList) > 0:
@@ -433,7 +426,7 @@ def gatherer(serviceNow, Dictionary_, List_, totalTicketNumber_, sys_userTable, 
 
 
 
-def QueryGen(auditChoice, u_depot_location, u_location, serviceNow):
+def queryReport(auditChoice, u_depot_location, u_location, serviceNow):
         temporaryList = []
         if auditChoice == 0:
                 qb = (
@@ -650,22 +643,24 @@ def getDetails(ticketNumber, serviceNow, table, usertable):
 #------------------------------------------------
 # For functionality of Python
 if __name__ == '__main__':
-        import traceback
-        try:
-                main()
-        except Exception as inst:
-                _toolsHandler.clear()
-                print("    Unexpected Error!")
-                print('    -----------------')
-                print("   Version: ", _glob.version[0], _glob.version[1], _glob.version[2], _glob.version[3])
-                print("    -----------------")
-                print(" BEGINNING ERROR REPORT:")
-                print(" -----------------------")
-                print(" -----------------------")
-                print(" Primary Error: ", inst)
-                print(" -----------------------")
-                traceback.print_exc()
-                print(" -----------------------")
-                print(" Please go to the following to create a bug report:")
-                print(" https://goo.gl/forms/oEeldwsAW98gwAEm1")
-                input('\n\n  Press Enter to close!')
+    import traceback
+    try:
+        _priviledgeHandler.checkPriv()
+        _updateHandler.checkVersion()
+        main()
+    except Exception as inst:
+        _toolsHandler.clear()
+        print("    Unexpected Error!")
+        print('    -----------------')
+        print("   Version: ", _glob.version[0], _glob.version[1], _glob.version[2], _glob.version[3])
+        print("    -----------------")
+        print(" BEGINNING ERROR REPORT:")
+        print(" -----------------------")
+        print(" -----------------------")
+        print(" Primary Error: ", inst)
+        print(" -----------------------")
+        traceback.print_exc()
+        print(" -----------------------")
+        print(" Please go to the following to create a bug report:")
+        print(" https://goo.gl/forms/oEeldwsAW98gwAEm1")
+        input('\n\n  Press Enter to close!')
