@@ -1,9 +1,12 @@
+# Audit Cleanse
+---
+This program is developed for technicians to have the ability to audit the devices in their IT Office, so long as their branch uses ServiceNow as their main asset host. Currenty, the program only works for Liberty University staff members with the subdomain of `liberty.service-now.com` or `libertydev.service-now.com`. The intention for this project is the ability for it to expand to any subdomain, but has only been tested and verified on Liberty's network.
+
+The program has several main audit forms, which will be covered in the following sections.
 
 
-
-Package Requirements
-------------------------
-
+### Package Requirements
+---
 This program requires the following libraries to be installed, and the comments following each are
 the reasons for each. Use `$ <sudo> pip install [package]` to set up each package.
 (If Python 2 is your system default, you may need to use 'pip3' instead.
