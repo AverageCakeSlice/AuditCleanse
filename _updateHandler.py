@@ -6,9 +6,11 @@ import sys
 import subprocess
 import urllib.request
 
+import _glob
+
 def checkVersion():
     try:
-        os.remove(_desktop + 'updater.exe')
+        os.remove(_glob.desktop + 'updater.exe')
         return
     except:
         pass
@@ -53,13 +55,13 @@ def wUpdate():
         os.system('cls')
         print('')
         print('UPDATING...')
-        ini = open(_desktop + 'u.pdate', 'w+')
-        ini.write(_filePath + '|')
-        ini.write(_scriptname + '|')
-        ini.write(_downloadDIR)
+        ini = open(_glob.desktop + 'u.pdate', 'w+')
+        ini.write(_glob.filePath + '|')
+        ini.write(_glob.scriptname + '|')
+        ini.write(_glob.downloadDIR)
         ini.close()
-        urllib.request.urlretrieve('http://helpdesk.liberty.edu/hdtools/scripts/Python/updater.exe', _desktop + 'updater.exe')
-        subprocess.Popen(_desktop + 'updater.exe')
+        urllib.request.urlretrieve('http://helpdesk.liberty.edu/hdtools/scripts/Python/updater.exe', _glob.desktop + 'updater.exe')
+        subprocess.Popen(_glob.desktop + 'updater.exe')
         sys.exit()
     else:
         pass

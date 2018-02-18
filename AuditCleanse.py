@@ -25,6 +25,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 import _updateHandler
 import _priviledgeHandler
+import _toolsHandler
+import _glob
 
 try:
         from msvcrt import getch,kbhit
@@ -40,13 +42,13 @@ except ImportError:
   Maintenance Variables 
  --------------------------------------- '''
 
-version = [1, 1, 2, 'b']
-_desktop = expanduser('~') + '\\Desktop\\'
-_scriptname = os.path.basename(__file__).split('.')
-_scriptname = _scriptname[0] + '.exe'
-_downloadDIR = '/scripts/Python'
-_filePath = os.path.realpath(__file__).split('.')
-_filePath = _filePath[0] + '.exe'
+_glob.version = [1, 1, 2, 'b']
+_glob.desktop = expanduser('~') + '\\Desktop\\'
+_glob.scriptname = os.path.basename(__file__).split('.')
+_glob.scriptname = _glob.scriptname[0] + '.exe'
+_glob.downloadDIR = '/scripts/Python'
+_glob.filePath = os.path.realpath(__file__).split('.')
+_glob.filePath = _glob.filePath[0] + '.exe'
 
 
 
@@ -57,7 +59,7 @@ _filePath = _filePath[0] + '.exe'
   Logo
  --------------------------------------- '''
 
-_logo = """
+_glob.logo = """
 --------------------   █████  ██    ██ ██████  ██ ████████  --------------------
 --------------------  ██   ██ ██    ██ ██   ██ ██    ██     --------------------
 --------------------  ███████ ██    ██ ██   ██ ██    ██  -----------------------
@@ -117,7 +119,7 @@ AuditCleanse -- Version 1.1.2b
 def main():
         _priviledgeHandler.checkPriv()
         _updateHandler.checkVersion()
-        header()
+        _toolsHandler.header()
 
         AuditDictionary = {}
         #       Holds many different items based on each CS# entry
@@ -528,10 +530,6 @@ def auditSetup():
         return auditChoice, u_depot_location, u_location
 
 
-
-def logo():
-        clear()
-        print(_logo)
 
 
 
