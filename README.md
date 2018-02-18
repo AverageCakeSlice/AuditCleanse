@@ -5,7 +5,7 @@ Package Requirements
 ------------------------
 
 This program requires the following libraries to be installed, and the comments following each are
-the reasons for each. Use `<sudo> pip install [package]` to set up each package.
+the reasons for each. Use `$ <sudo> pip install [package]` to set up each package.
 (If Python 2 is your system default, you may need to use 'pip3' instead.
 
 * pyperclip - To copy the list of items in your clipboard. Specifically used to capture the list
