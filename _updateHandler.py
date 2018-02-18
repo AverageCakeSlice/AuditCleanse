@@ -10,7 +10,7 @@ import _glob
 
 def checkVersion():
     try:
-        os.remove(_glob.desktop + 'updater.exe')
+        os.remove(os.path.expanduser('~') + '\\Desktop\\updater.exe')
         return
     except:
         pass
@@ -55,13 +55,13 @@ def wUpdate():
         os.system('cls')
         print('')
         print('UPDATING...')
-        ini = open(_glob.desktop + 'u.pdate', 'w+')
+        ini = open(os.path.expanduser('~') + '\\Desktop\\u.pdate', 'w+')
         ini.write(_glob.filePath + '|')
         ini.write(_glob.scriptname + '|')
-        ini.write(_glob.downloadDIR)
+        ini.write('/scripts/Python')
         ini.close()
         urllib.request.urlretrieve('http://helpdesk.liberty.edu/hdtools/scripts/Python/updater.exe', _glob.desktop + 'updater.exe')
-        subprocess.Popen(_glob.desktop + 'updater.exe')
+        subprocess.Popen(os.path.expanduser('~') + '\\Desktop\\updater.exe')
         sys.exit()
     else:
         pass
@@ -69,7 +69,7 @@ def wUpdate():
 
 
 def uUpdate():
-    newFile = os.path.basename(__file__)
+    newFile = _glob.scriptname
         
     desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') 
         

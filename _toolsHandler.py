@@ -1,26 +1,9 @@
 from __future__ import print_function
 import os
-import ctypes
-import stat
 import platform
 import sys
-import argparse
-from datetime import datetime, timedelta, date
-import time
-import pyperclip
-import pysnow
-import getpass
 import subprocess
-from colorama import Fore, Back, Style
-from termcolor import cprint
-
-from os.path import expanduser
-import logging
-import re
 import urllib.request
-
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
 
 import _updateHandler
@@ -29,18 +12,12 @@ import _glob
 
 try:
         from msvcrt import getch,kbhit
-        OS = True
 except ImportError:
-        OS = False
         from getch import getch
         import termios
 
-def logo():
-    clear()
-    print(glob._logo)
 
-
-def PR_(title_, list_ = [], program_name = glob._scriptname):
+def PR_(title_, list_ = []):
         while True:
                 header()
                 line()
@@ -80,7 +57,7 @@ def cleanup(dir_name = 'C:\\HelpdeskTools'):
                 endFooter()
 
 def clear():
-                if OS:
+                if platform.system() == 'Windows':
                         os.system('cls')
                 else:
                         os.system('clear')
@@ -108,21 +85,20 @@ def dl_HDTool(dl_dir, file_name, dir_name = 'C:\\HelpdeskTools'):
 def dl_Web(url, file_name, dir_name = 'C:\\HelpdeskTools'):
                 urllib.urlretrieve(url, dir_name + '\\' + file_name)
 
-def header(program_name = _scriptname):
+def header(kb = "---------"):
                 clear()
-                logo()
-                print("----------------------------------- KB0015731 ----------------------------------")
+                print(_glob.logo)
+                print("----------------------------------- " + kb + " ----------------------------------")
                 print('  Designed and Written for use in Liberty IT Helpdesk')
                 line()
                 newLine()
 
-def endFooter(completion_color = 'a0'):
-                global _reimageBool
+def endFooter(completion_color = 'a0', check = 0):
                 newLine(3)
                 line()
                 print('  Questions / Recommendations? Talk to a T1+')
                 print('  Press any key to exit')
-                if(_reimageBool == 0):
+                if(check == 0):
                                 try:
                                         os.system('color ' + completion_color)
                                 except:

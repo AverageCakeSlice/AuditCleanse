@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, date
 import time
 import pyperclip
 import pysnow
-import getpass
 import subprocess
 from colorama import Fore, Back, Style
 from termcolor import cprint
@@ -43,12 +42,9 @@ except ImportError:
  --------------------------------------- '''
 
 _glob.version = [1, 1, 2, 'b']
-_glob.desktop = expanduser('~') + '\\Desktop\\'
-_glob.scriptname = os.path.basename(__file__).split('.')
-_glob.scriptname = _glob.scriptname[0] + '.exe'
+_glob.scriptname = os.path.basename(__file__).split('.')[0] + '.exe'
 _glob.downloadDIR = '/scripts/Python'
-_glob.filePath = os.path.realpath(__file__).split('.')
-_glob.filePath = _glob.filePath[0] + '.exe'
+_glob.filePath = os.path.realpath(__file__).split('.')[0] + '.exe'
 
 
 
@@ -64,7 +60,7 @@ _glob.logo = """
 --------------------  ██   ██ ██    ██ ██   ██ ██    ██     --------------------
 --------------------  ███████ ██    ██ ██   ██ ██    ██  -----------------------
 --------------------  ██   ██ ██    ██ ██   ██ ██    ██  -----------------------
---------------------  ██   ██  ██████  ██████  ██    ██  -----------------------
+-------------------   ██   ██  ██████  ██████  ██    ██  -----------------------
 -----------  ██████ ██      ███████  █████  ███    ██ ███████ ███████ ----------
 ----------  ██      ██      ██      ██   ██ ████   ██ ██      ██      ----------
 ----------  ██      ██      █████   ███████ ██ ██  ██ ███████ █████ ------------
@@ -156,19 +152,19 @@ def main():
                 gatherer(serviceNow, AuditDictionary, AuditList, totalTicketNumber, sys_userTable, u_computer_supportTable)
                 sorted(AuditList, key=lambda x: (AuditDictionary[x]['state'], AuditDictionary[x]['username']))
                 repairer(serviceNow, AuditDictionary, AuditList, sys_userTable, u_computer_supportTable)
-                header()
+                _toolsHandler.header()
                 NotScannedList = auditConsole(AuditDictionary, AuditList, GoodScannedList, WronglyScannedList)
                 WronglyScannedListDict = {}
 
                 if len(NotScannedList) > 0:
-                        header()
+                        _toolsHanlder.header()
                         print(Fore.CYAN + '  Not Scanned Items:' + Style.RESET_ALL)
                         printer(AuditDictionary, NotScannedList)
                         print('')
                         input('  Press Enter to Continue.')
 
                 if len(WronglyScannedList) > 0:
-                        header()
+                        _toolsHanlder.header()
                         print(Fore.CYAN + '  Errorly Scanned Items:' + Style.RESET_ALL)
                         gatherer(serviceNow, WronglyScannedListDict, WronglyScannedList, len(WronglyScannedList), sys_userTable, u_computer_supportTable)
                         printer(WronglyScannedListDict, WronglyScannedList)
@@ -182,17 +178,17 @@ def main():
                 #       Service Now object to search for users and information based on their sysID
 
                 for i,each in enumerate(GoodScannedList):
-                        header()
+                        _toolsHanlder.header()
                         print('          Updating Tickets')
                         print('       ' + format(i) + ' / ' + format(len(GoodScannedList)))
                         updateCS(serviceNow, each, 'work_notes', username + ' verified this device is at ' + u_location + ' on the Daily Repair Audit.', u_computer_supportTable)
                 
                 
         else:
-                header()
+                _toolsHanlder.header()
                 NotScannedList = auditConsole({}, AuditList, GoodScannedList, WronglyScannedList)
                 if len(NotScannedList) > 0:
-                        header()
+                        _toolsHanlder.header()
                         print(Fore.CYAN + '  Not Scanned Items:' + Style.RESET_ALL)
                         for i,each in enumerate(NotScannedList):
                                 print(' ' + format(i).center(3) + ' | ' + each)
@@ -200,7 +196,7 @@ def main():
                         input('  Press Enter to Continue.')
 
                 if len(WronglyScannedList) > 0:
-                        header()
+                        _toolsHanlder.header()
                         print(Fore.CYAN + '  Errorly Scanned Items:' + Style.RESET_ALL)
                         for i,each in enumerate(WronglyScannedList):
                                 print(' ' + format(i).center(3) + ' | ' + each)
@@ -227,7 +223,7 @@ def main():
 
 
 def auditCloser(WrongList_, NotList_, audittkt, table, serviceNow):
-        header()
+        _toolsHanlder.header()
         print('  The Audit TKT has been updated.')
         string = ''
         if NotList_ != []:
@@ -245,175 +241,179 @@ def auditCloser(WrongList_, NotList_, audittkt, table, serviceNow):
 
 
 def login():
-        username = input('Please input your Liberty Username: ')
-        password = getpass.getpass('Please input your Liberty Password: ')
-        ticket = input('Please input your Audit TKT: ')
+    import getpass
+    username = input('Please input your Liberty Username: ')
+    password = getpass.getpass('Please input your Liberty Password: ')
+    ticket = input('Please input your Audit TKT: ')
 
-        serviceNow = pysnow.Client(instance='Liberty', user=username, password=password)
+    serviceNow = pysnow.Client(instance='Liberty', user=username, password=password)
 
-        return username, serviceNow, ticket
+    return username, serviceNow, ticket
 
 
 
 def repairer(serviceNow, AuditDictionary_, AuditList_, sys_userTable, u_computer_supportTable):
-        UpdatedList = []
-        for ticket in AuditList_:       
-                if AuditDictionary_[ticket]['state'] == 'Open':
-                        #print(ticket + ' - ' + AuditDictionary_[ticket]['state'] + ' - ' + AuditDictionary_[ticket]['substate'] + ' - ' + AuditDictionary_[ticket]['username'])
-                        if AuditDictionary_[ticket]['username'] == '' and AuditDictionary_[ticket]['substate'] != 'In Queue':
-                                #input('1')
-                                updateCS(serviceNow, ticket, 'u_substate', '489fb3f02b3c9200258f89efe8da156d', u_computer_supportTable)
+    UpdatedList = []
+    for ticket in AuditList_:       
+        if AuditDictionary_[ticket]['state'] == 'Open':
+            if AuditDictionary_[ticket]['username'] == '' and AuditDictionary_[ticket]['substate'] != 'In Queue':
+                updateCS(serviceNow, ticket, 'u_substate', '489fb3f02b3c9200258f89efe8da156d', u_computer_supportTable)
 
-                        elif AuditDictionary_[ticket]['username'] != '' and AuditDictionary_[ticket]['substate'] == 'In Queue':
-                                #input('2')
-                                updateCS(serviceNow, ticket, 'state', '2', u_computer_supportTable)
-                                updateCS(serviceNow, ticket, 'u_substate', '', u_computer_supportTable)
+            elif AuditDictionary_[ticket]['username'] != '' and AuditDictionary_[ticket]['substate'] == 'In Queue':
+                updateCS(serviceNow, ticket, 'state', '2', u_computer_supportTable)
+                updateCS(serviceNow, ticket, 'u_substate', '', u_computer_supportTable)
                         
-                        elif AuditDictionary_[ticket]['username'] != '':
-                                #input('3')
-                                updateCS(serviceNow, ticket, 'state', '2', u_computer_supportTable)
-                        else:
-                                continue
+            elif AuditDictionary_[ticket]['username'] != '':
+                updateCS(serviceNow, ticket, 'state', '2', u_computer_supportTable)
+           
+            else:
+                continue
 
-                        UpdatedList.append(ticket)      
-        gatherer(serviceNow, AuditDictionary_, UpdatedList, len(UpdatedList), sys_userTable, u_computer_supportTable)
+            UpdatedList.append(ticket)      
+    gatherer(serviceNow, AuditDictionary_, UpdatedList, len(UpdatedList), sys_userTable, u_computer_supportTable)
 
 
 
 def updateCS(serviceNow, Ticket_, Field_, Payload_, Table_):
-                update = {Field_:Payload_}
-                pushUpdate = Table_.update(query={'number':Ticket_}, payload=update)
-                return True
+    update = {Field_:Payload_}
+    pushUpdate = Table_.update(query={'number':Ticket_}, payload=update)
+    return True
         
 
 
 def printer(AuditDictionary_, subList):
-        print(Style.BRIGHT + Fore.RED + '  #  |    Item     |    Assigned  To    |   State   |         Substate          ')
-        print(Style.RESET_ALL + '-----|-------------|--------------------|-----------|---------------------------')
-        toggle = True
+    print(Style.BRIGHT + Fore.RED + '  #  |    Item     |    Assigned  To    |   State   |         Substate          ')
+    print(Style.RESET_ALL + '-----|-------------|--------------------|-----------|---------------------------')
+    toggle = True
 
-        for i,k in enumerate(subList):
-                if toggle:
-                        toggle = False
-                        print(Style.BRIGHT, end="")
-                else:
-                        toggle = True
-                        print(Style.RESET_ALL, end="")
+    for i,k in enumerate(subList):
+        if toggle:
+            toggle = False
+            print(Style.BRIGHT, end="")
+        else:
+            toggle = True
+            print(Style.RESET_ALL, end="")
 
-                print(' ' + format(i + 1)[:3].center(3), end='')
-                print(' | ', end='')
-                print(k[:11].center(11), end="")
-                print(' | ', end='')
-                print(AuditDictionary_[k]['username'][:18].center(18), end="")
-                print(' | ', end='')
+        print(' ' + format(i + 1)[:3].center(3), end='')
+        print(' | ', end='')
+        print(k[:11].center(11), end="")
+        print(' | ', end='')
+        print(AuditDictionary_[k]['username'][:18].center(18), end="")
+        print(' | ', end='')
 
-                if AuditDictionary_[k]['state'] == 'Closed':
-                        print(Style.BRIGHT, end='')
-                        print(Fore.YELLOW + AuditDictionary_[k]['state'].center(9), end="")
-                        print(Fore.RESET + ' | ', end='')
-                        print(Fore.YELLOW + AuditDictionary_[k]['substate'][:25].center(25))
-                        print(Fore.RESET, end='')
-                        if toggle:
-                                print(Style.BRIGHT, end="")
-                        else:
-                                print(Style.RESET_ALL, end="")
-                elif AuditDictionary_[k]['state'] == 'Open' or AuditDictionary_[k]['substate'] == 'In Queue':
-                        print(Style.BRIGHT, end='')
-                        print(Fore.CYAN + AuditDictionary_[k]['state'].center(9), end="")
-                        print(Fore.RESET + ' | ', end='')
-                        print(Fore.CYAN + AuditDictionary_[k]['substate'][:25].center(25))
-                        print(Fore.RESET, end='')
-                        if toggle:
-                                print(Style.BRIGHT, end="")
-                        else:
-                                print(Style.RESET_ALL, end="")
-                elif AuditDictionary_[k]['state'] == 'On Hold':
-                        print(Style.BRIGHT, end='')
-                        print(Fore.MAGENTA + AuditDictionary_[k]['state'].center(9), end="")
-                        print(Fore.RESET + ' | ', end='')
-                        print(Fore.MAGENTA + AuditDictionary_[k]['substate'][:25].center(25))
-                        print(Fore.RESET, end='')
-                        if toggle:
-                                print(Style.BRIGHT, end="")
-                        else:
-                                print(Style.RESET_ALL, end="")
-                elif AuditDictionary_[k]['state'] == 'Working':
-                        print(Style.BRIGHT, end='')
-                        print(AuditDictionary_[k]['state'].center(9), end="")
-                        print(' | ', end='')
-                        print(AuditDictionary_[k]['substate'][:25].center(25))
-                        if toggle:
-                                print(Style.BRIGHT, end="")
-                        else:
-                                print(Style.RESET_ALL, end="")
-                elif AuditDictionary_[k]['state'] == 'NULL':
-                        print(Style.BRIGHT, end='')
-                        print(Fore.RED + AuditDictionary_[k]['state'].center(9), end="")
-                        print(Fore.RESET + ' | ', end='')
-                        print(Fore.RED + AuditDictionary_[k]['substate'][:25].center(25))
-                        print(Fore.RESET, end='')
-                        if toggle:
-                                print(Style.BRIGHT, end="")
-                        else:
-                                print(Style.RESET_ALL, end="")
-                else:
-                        print(AuditDictionary_[k]['state'].center(9), end="")
-                        print(' | ', end='')
-                        print(AuditDictionary_[k]['substate'][:25].center(25))
-        print(Style.RESET_ALL, end='')
+        if AuditDictionary_[k]['state'] == 'Closed':
+            print(Style.BRIGHT, end='')
+            print(Fore.YELLOW + AuditDictionary_[k]['state'].center(9), end="")
+            print(Fore.RESET + ' | ', end='')
+            print(Fore.YELLOW + AuditDictionary_[k]['substate'][:25].center(25))
+            print(Fore.RESET, end='')
+            if toggle:
+                print(Style.BRIGHT, end="")
+            else:
+                print(Style.RESET_ALL, end="")
+        
+        elif AuditDictionary_[k]['state'] == 'Open' or AuditDictionary_[k]['substate'] == 'In Queue':
+            print(Style.BRIGHT, end='')
+            print(Fore.CYAN + AuditDictionary_[k]['state'].center(9), end="")
+            print(Fore.RESET + ' | ', end='')
+            print(Fore.CYAN + AuditDictionary_[k]['substate'][:25].center(25))
+            print(Fore.RESET, end='')
+            if toggle:
+                print(Style.BRIGHT, end="")
+            else:
+                print(Style.RESET_ALL, end="")
+        
+        elif AuditDictionary_[k]['state'] == 'On Hold':
+            print(Style.BRIGHT, end='')
+            print(Fore.MAGENTA + AuditDictionary_[k]['state'].center(9), end="")
+            print(Fore.RESET + ' | ', end='')
+            print(Fore.MAGENTA + AuditDictionary_[k]['substate'][:25].center(25))
+            print(Fore.RESET, end='')
+            if toggle:
+                print(Style.BRIGHT, end="")
+            else:
+                print(Style.RESET_ALL, end="")
+        
+        elif AuditDictionary_[k]['state'] == 'Working':
+            print(Style.BRIGHT, end='')
+            print(AuditDictionary_[k]['state'].center(9), end="")
+            print(' | ', end='')
+            print(AuditDictionary_[k]['substate'][:25].center(25))
+            if toggle:
+                print(Style.BRIGHT, end="")
+            else:
+                print(Style.RESET_ALL, end="")
+        
+        elif AuditDictionary_[k]['state'] == 'NULL':
+            print(Style.BRIGHT, end='')
+            print(Fore.RED + AuditDictionary_[k]['state'].center(9), end="")
+            print(Fore.RESET + ' | ', end='')
+            print(Fore.RED + AuditDictionary_[k]['substate'][:25].center(25))
+            print(Fore.RESET, end='')
+            if toggle:
+                print(Style.BRIGHT, end="")
+            else:
+                print(Style.RESET_ALL, end="")
+        
+        else:
+            print(AuditDictionary_[k]['state'].center(9), end="")
+            print(' | ', end='')
+            print(AuditDictionary_[k]['substate'][:25].center(25))
+    
+    print(Style.RESET_ALL, end='')
 
 
 
 def auditConsole(AuditDictionary_, AuditList_, GoodScannedList_, WronglyScannedList_):
 
-        subList = AuditList_
-        while True:
-                header()
+    subList = AuditList_
+    while True:
+        _toolsHandler.header()
                 
-                if AuditDictionary_ != {}:
-                        printer(AuditDictionary_, subList)
-                        print(Fore.RED + Style.BRIGHT + ' ' + format(len(subList) + 1).center(3) + ' | ' +  'END PROGRAM'.center(11))
-                        print(Style.RESET_ALL, end="")
-                        line()
-                        print('  Enter a CS Number or the Number of the item')
-                else:
-                        for i,each in enumerate(subList):
-                                print(' ' + format(i + 1)[:3].center(3), end='')
-                                print(' | ', end='')
-                                print(each)
-                        print(Fore.RED + Style.BRIGHT + ' ' + format(len(AuditList_) + 1).center(3) + ' | ' + 'END PROGRAM' + Style.RESET_ALL)
+        if AuditDictionary_ != {}:
+            printer(AuditDictionary_, subList)
+            print(Fore.RED + Style.BRIGHT + ' ' + format(len(subList) + 1).center(3) + ' | ' +  'END PROGRAM'.center(11))
+            print(Style.RESET_ALL, end="")
+            _toolsHandler.line()
+            print('  Enter a CS Number or the Number of the item')
+        else:
+            for i,each in enumerate(subList):
+                print(' ' + format(i + 1)[:3].center(3), end='')
+                print(' | ', end='')
+                print(each)
+            print(Fore.RED + Style.BRIGHT + ' ' + format(len(AuditList_) + 1).center(3) + ' | ' + 'END PROGRAM' + Style.RESET_ALL)
 
-                userInput = input('  > ')
+        userInput = input('  > ')
                 
-                try:
-                        userInput = int(userInput)
-                        if userInput == len(subList) + 1:
-                                return subList
-                        userInput -= 1
-                        if len(subList) < userInput:
-                                continue
-                        if userInput < 0:
-                                continue
-                        GoodScannedList_.append(subList[userInput])
-                        subList.remove(subList[userInput])
-                except:
-                        userInput = userInput.strip()
-                        userInput = userInput.upper()
-                        try:
-                                subList.remove(userInput)
-                                GoodScannedList_.append(userInput)
-                                print('\a')
-                        except:
-                                if userInput not in AuditList_:
-                                        if userInput not in WronglyScannedList_:
-                                                WronglyScannedList_.append(userInput)
+        try:
+            userInput = int(userInput)
+            if userInput == len(subList) + 1:
+                return subList
+            userInput -= 1
+            if len(subList) < userInput:
+                continue
+            if userInput < 0:
+                continue
+            GoodScannedList_.append(subList[userInput])
+            subList.remove(subList[userInput])
+        except:
+            userInput = userInput.strip()
+            userInput = userInput.upper()
+            try:
+                subList.remove(userInput)
+                GoodScannedList_.append(userInput)
+                print('\a')
+            except:
+                if userInput not in AuditList_:
+                    if userInput not in WronglyScannedList_:
+                        WronglyScannedList_.append(userInput)
 
 
 
 def gatherer(serviceNow, Dictionary_, List_, totalTicketNumber_, sys_userTable, u_computer_supportTable):
 
         for i,each in enumerate(List_):
-                header()
+                _toolsHandler.header()
                 print('    GATHERING INFORMATION')
                 print('       ' + format(i) + ' / ' + format(totalTicketNumber_))
                 try: 
@@ -429,7 +429,7 @@ def gatherer(serviceNow, Dictionary_, List_, totalTicketNumber_, sys_userTable, 
                         Dictionary_[each]['state'] = 'NULL'
                         Dictionary_[each]['substate'] = 'NULL'
                         Dictionary_[each]['ticket'] = each      
-        header()
+        _toolsHandler.header()
 
 
 
@@ -477,7 +477,7 @@ def QueryGen(auditChoice, u_depot_location, u_location, serviceNow):
                         temporaryList.append(record['number'])
         else:
                 while True:     #loop while person is idiot and does not copy their list properly
-                        header()                                                        
+                        _toolsHandler.header()                                                        
                         print('  I cannot automatically gather that audit, please export')                      
                         print('  the audit as a .xlsx, then copy the items from the sheet')     
                         wait('  then press any key.     >> DO NOT PASTE THE LIST << \n')
@@ -489,7 +489,7 @@ def QueryGen(auditChoice, u_depot_location, u_location, serviceNow):
                         except:
                                 print('  I cannot get your clipboard. Paste it to a txt file, and remove newlines')
                                 temporaryList = input('  Try pasting it here: ').split()
-                        header()
+                        _toolsHandler.header()
                         for i,item in enumerate(temporaryList): #to format list as: '[x] item' where x is a numbered list
                                 temporaryList[i] = item.upper()
                                 print('[' + format(i + 1) + '] ' + item)
@@ -506,10 +506,10 @@ def QueryGen(auditChoice, u_depot_location, u_location, serviceNow):
 def auditSetup():
         auditMenu = []
         auditMenu = ['Daily Repair Audit', 'Weekly Assignment Audit', 'Weekly Storage Audit', 'Weekly Loaner Audit']
-        auditChoice = PR_('Which audit are you running?', auditMenu)
+        auditChoice = _toolsHandler.PR_('Which audit are you running?', auditMenu)
 
         locationMenu = ['Demoss Hall', 'Green Hall', 'LUCOM', 'River Ridge']
-        locationChoice = PR_('Which Office are you located?', locationMenu)
+        locationChoice = _toolsHandler.PR_('Which Office are you located?', locationMenu)
 
         if locationChoice == 0:
                 u_depot_location = '862a49f29c806d40f47c19537d850ca4'
@@ -534,12 +534,10 @@ def auditSetup():
 
 
 def getUsername(sysID, serviceNow, sys_userTable):
-        #print('sysID = ' + sysID)
         if sysID == 'NULL':
                 return ''
         sys_user = sys_userTable.get(query={'sys_id':sysID}, fields=['name'])
         user_fullName = sys_user.one()[u'name']
-        #print('user full = ' + user_fullName)
         return user_fullName
 
 
@@ -649,140 +647,6 @@ def getDetails(ticketNumber, serviceNow, table, usertable):
 
 
 
-
-
-
-
-
-
-
-
-
-'''
- ---------------------------------------
-  Generic-Use Function Declaration
- --------------------------------------- '''
-
-
-
-def PR_(title_, list_ = [], program_name = _scriptname):
-        while True:
-                header()
-                line()
-                print(' -  ' + title_)                          #
-                line()
-
-                index = 0       
-
-                for i, item in enumerate(list_):
-                        ind = i + 1
-                        print('[' + format(ind) + '] ' + item)
-                line()
-                itemNum = input(' -      Please choose an item and press enter: ')
-
-                # if itemNum in listofitems:                    
-
-                try:                                            # If input string is not a number, loop and try again
-                        itemNum = int(itemNum)
-                        itemNum = itemNum - 1
-                except:                                         #
-                        continue                                #
-
-                if len(list_) < itemNum + 1:    # If item does not exist in list, loop and try again; else return number
-                        print(' - ERROR! -')                    #
-                else:                                                           #
-                        header()
-                        return itemNum                                  #
-#} end of pr()
-
-
-
-
-
-        
-def cleanup(dir_name = 'C:\\HelpdeskTools'):
-                shutil.rmtree(dir_name)
-                endFooter()
-
-def clear():
-                if OS:
-                        os.system('cls')
-                else:
-                        os.system('clear')
-                return
-
-def setup(dir_name = 'C:\\HelpdeskTools'):       
-                try:
-                    os.stat(dir_name)
-                except:
-                    os.mkdir(dir_name)
-
-def dl_Python(file_name, dir_name = 'C:\\HelpdeskTools'):
-    try:
-        urllib.urlretrieve('http://helpdesk.liberty.edu/hdtools/scripts/python/' + file_name, dir_name + '\\' + file_name)
-        return True
-    except:
-        return False
-
-def dl_HDTool(dl_dir, file_name, dir_name = 'C:\\HelpdeskTools'):
-    try:
-        urllib.urlretrieve('http://helpdesk.liberty.edu/hdtools/' + dl_dir, dir_name + '\\' + file_name)
-        return True
-    except:
-        return False
-def dl_Web(url, file_name, dir_name = 'C:\\HelpdeskTools'):
-                urllib.urlretrieve(url, dir_name + '\\' + file_name)
-
-def header(program_name = _scriptname):
-                clear()
-                logo()
-                print("----------------------------------- KB0015731 ----------------------------------")
-                print('  Designed and Written for use in Liberty IT Helpdesk')
-                line()
-                newLine()
-
-def endFooter(completion_color = 'a0'):
-                global _reimageBool
-                newLine(3)
-                line()
-                print('  Questions / Recommendations? Talk to a T1+')
-                print('  Press any key to exit')
-                if(_reimageBool == 0):
-                                try:
-                                        os.system('color ' + completion_color)
-                                except:
-                                        pass
-                wait()
-                sys.exit()
-
-def line(num = 80):
-                print('-' * num)
-
-def newLine(num = 1):
-                print('\n' * num)
-                
-def wait(string = '', clear = False):
-                if clear:
-                        header()
-                if string == '':
-                        pass
-                else:
-                        print(string)
-                        print('\n')
-                flush_input()
-                if platform.system() == 'Windows': #to split the list into useable CS# / Serial#
-                        return getch().decode('utf-8')
-                else:
-                        return getch()
-
-def flush_input():
-        try:
-                while kbhit():
-                        getch()
-        except:
-                pass
-
-
 #------------------------------------------------
 # For functionality of Python
 if __name__ == '__main__':
@@ -790,10 +654,10 @@ if __name__ == '__main__':
         try:
                 main()
         except Exception as inst:
-                clear()
+                _toolsHandler.clear()
                 print("    Unexpected Error!")
                 print('    -----------------')
-                print("   Version: ", version[0], version[1], version[2], version[3])
+                print("   Version: ", _glob.version[0], _glob.version[1], _glob.version[2], _glob.version[3])
                 print("    -----------------")
                 print(" BEGINNING ERROR REPORT:")
                 print(" -----------------------")
