@@ -7,6 +7,7 @@ import subprocess
 import urllib.request
 
 import _glob
+## LOOK INTO https://youtu.be/7lmCu8wz8ro?t=2967 broski
 
 def checkVersion():
     try:
